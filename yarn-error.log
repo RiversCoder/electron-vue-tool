@@ -1,0 +1,135 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe D:\Program Files (x86)\Yarn\bin\yarn.js install
+
+PATH: 
+  D:\Program Files\ImageMagick-7.0.8-Q16;D:\Program Files (x86)\Yarn\bin;D:\dev\hadoop-2.8.3\bin;D:\dev\hadoop-2.8.3\sbin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;D:\tortoiseGIT\bin;D:\svn\bin;E:\consul_1.0.0_windows_amd64;C:\Users\KD\AppData\Local\Programs\Python\Python36;F:\Redis\;E:\maven\apache-maven-3.2.2\bin;E:\git\Git\bin;E:\mysql-5.7.22-winx64\bin;D:\Program Files (x86)\Yarn\bin\;C:\Users\KD\AppData\Local\Programs\Python\Python36\Scripts;D:\mongodb\data\bin;C:\WINDOWS\System32\OpenSSH\;D:\Program Files (x86)\QuickTime\QTSystem\;C:\Users\92809\AppData\Roaming\npm\;C:\Program Files\nodejs\;C:\Program Files (x86)\Notepad++;C:\Program Files\Apache Software Foundation\Tomcat 7.0\bin;D:\jdk1.7\jdk1.7.0_79\bin;D:\jdk1.7\jdk1.7.0_79\jre\bin;C:\Program Files (x86)\Google\Chrome\Application;D:\Ruby26-x64\bin;C:\Users\92809\Anaconda3;C:\Users\92809\Anaconda3\Library\mingw-w64\bin;C:\Users\92809\Anaconda3\Library\usr\bin;C:\Users\92809\Anaconda3\Library\bin;C:\Users\92809\Anaconda3\Scripts;C:\Users\92809\AppData\Local\Microsoft\WindowsApps;E:\git\Git\cmd;C:\Users\92809\AppData\Local\Yarn\bin;E:\wamp64\bin\php\php7.0.10;C:\Users\92809\AppData\Local\ComposerSetup\bin;C:\Users\92809\AppData\Roaming\Composer\vendor\bin;d:\Users\92809\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\92809\AppData\Local\Programs\Fiddler;C:\Users\92809\AppData\Local\Microsoft\WindowsApps;C:\Users\92809\AppData\Roaming\npm;C:\Users\92809\AppData\Local\atom\bin
+
+Yarn version: 
+  1.10.1
+
+Node version: 
+  10.16.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.npm.taobao.org/core-js/download/core-js-2.6.10.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fcore-js%2Fdownload%2Fcore-js-2.6.10.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (D:\Program Files (x86)\Yarn\lib\cli.js:120793:19)
+      at Object.onceWrapper (events.js:286:20)
+      at ClientRequest.emit (events.js:198:13)
+      at TLSSocket.emitRequestTimeout (_http_client.js:662:40)
+      at Object.onceWrapper (events.js:286:20)
+      at TLSSocket.emit (events.js:198:13)
+      at TLSSocket.Socket._onTimeout (net.js:442:8)
+      at ontimeout (timers.js:436:11)
+      at tryOnTimeout (timers.js:300:5)
+      at listOnTimeout (timers.js:263:5)
+
+npm manifest: 
+  {
+    "name": "my-project2",
+    "version": "0.0.1",
+    "author": "maozeyu <5400230+maozeyu@user.noreply.gitee.com>",
+    "description": "An electron-vue project",
+    "license": null,
+    "main": "./dist/electron/main.js",
+    "scripts": {
+      "build": "node .electron-vue/build.js && electron-builder",
+      "build:dir": "node .electron-vue/build.js && electron-builder --dir",
+      "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
+      "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
+      "dev": "node .electron-vue/dev-runner.js",
+      "pack": "npm run pack:main && npm run pack:renderer",
+      "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
+      "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
+      "postinstall": ""
+    },
+    "build": {
+      "productName": "my-project2",
+      "appId": "com.example.yourapp",
+      "directories": {
+        "output": "build"
+      },
+      "files": [
+        "dist/electron/**/*"
+      ],
+      "dmg": {
+        "contents": [
+          {
+            "x": 410,
+            "y": 150,
+            "type": "link",
+            "path": "/Applications"
+          },
+          {
+            "x": 130,
+            "y": 150,
+            "type": "file"
+          }
+        ]
+      },
+      "mac": {
+        "icon": "build/icons/icon.icns"
+      },
+      "win": {
+        "icon": "build/icons/icon.ico"
+      },
+      "linux": {
+        "icon": "build/icons"
+      }
+    },
+    "dependencies": {
+      "vue": "^2.5.16",
+      "axios": "^0.18.0",
+      "vue-electron": "^1.0.6",
+      "vue-router": "^3.0.1",
+      "vuex": "^3.0.1",
+      "vuex-electron": "^1.0.0"
+    },
+    "devDependencies": {
+      "ajv": "^6.5.0",
+      "babel-core": "^6.26.3",
+      "babel-loader": "^7.1.4",
+      "babel-plugin-transform-runtime": "^6.23.0",
+      "babel-preset-env": "^1.7.0",
+      "babel-preset-stage-0": "^6.24.1",
+      "babel-register": "^6.26.0",
+      "babili-webpack-plugin": "^0.1.2",
+      "cfonts": "^2.1.2",
+      "chalk": "^2.4.1",
+      "copy-webpack-plugin": "^4.5.1",
+      "cross-env": "^5.1.6",
+      "css-loader": "^0.28.11",
+      "del": "^3.0.0",
+      "devtron": "^1.4.0",
+      "electron": "^2.0.4",
+      "electron-debug": "^1.5.0",
+      "electron-devtools-installer": "^2.2.4",
+      "electron-builder": "^20.19.2",
+      "mini-css-extract-plugin": "0.4.0",
+      "file-loader": "^1.1.11",
+      "html-webpack-plugin": "^3.2.0",
+      "multispinner": "^0.2.1",
+      "node-loader": "^0.6.0",
+      "node-sass": "^4.9.2",
+      "sass-loader": "^7.0.3",
+      "style-loader": "^0.21.0",
+      "url-loader": "^1.0.1",
+      "vue-html-loader": "^1.2.4",
+      "vue-loader": "^15.2.4",
+      "vue-style-loader": "^4.1.0",
+      "vue-template-compiler": "^2.5.16",
+      "webpack-cli": "^3.0.8",
+      "webpack": "^4.15.1",
+      "webpack-dev-server": "^3.1.4",
+      "webpack-hot-middleware": "^2.22.2",
+      "webpack-merge": "^4.1.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
