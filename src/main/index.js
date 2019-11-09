@@ -1,10 +1,10 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow,dialog, ipcMain } from 'electron'
+import electron from 'electron';
+import  MainListener from './main-process.js';
 
-require('../server/server.js');
-let exec = require('child_process').exec;
-let path = require('path');
 
-import { dialog, ipcMain } from 'electron';
+// 主进程监听
+MainListener(electron);
 
 // 监听是否需要打开选择文件夹
 ipcMain.on('open-directory-dialog', function (event, p) {
@@ -36,9 +36,12 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 600,
     useContentSize: true,
-    width: 1000
+    width: 1100,
+    webPreferences: {
+      nodeIntegration: true
+    }
   })
 
   mainWindow.loadURL(winURL)
@@ -46,10 +49,6 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   });
-
-  exec('node '+path.resolve(__dirname, '../server/server.js'), error => {
-    console.log(error);
-  })
 
 }
 

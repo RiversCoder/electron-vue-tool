@@ -14,11 +14,27 @@ export default new Router({
       path: '/container',
       name: 'container',
       component: () => import('@/pages/container/container.vue'),
-      redirect: '/container/toutiao-svideo',
-      children:[{
+      redirect: '/container/media-tool',
+      children:[,{
+        path:'/container/media-tool',
+        name: 'media-tool',
+        component: () => import('@/pages/container/container-pages/media-tool/index.vue')
+      },{
         path:'/container/toutiao-svideo',
         name: 'toutiao-svideo',
         component: () => import('@/pages/container/container-pages/toutiao-svideo/toutiao-svideo.vue')
+      },{
+        path:'/container/toutiao-svideo-author',
+        name: 'toutiao-svideo-author',
+        component: () => import('@/pages/container/container-pages/toutiao-svideo-author/index.vue')
+      },{
+        path:'/container/douyin-svideo-author',
+        name: 'douyin-svideo-author',
+        component: () => import('@/pages/container/container-pages/douyin-svideo-author/index.vue')
+      },{
+        path:'/container/qutoutiao-svideo-author',
+        name: 'qutoutiao-svideo-author',
+        component: () => import('@/pages/container/container-pages/qutoutiao-svideo-author/index.vue')
       }]
     },
     {
