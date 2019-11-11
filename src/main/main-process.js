@@ -1,4 +1,5 @@
-function MainListener(electron){
+function MainListener(electron, win){
+
     const { dialog, ipcMain } = electron;
 
     // 监听是否需要打开选择文件夹
@@ -10,7 +11,6 @@ function MainListener(electron){
           if (files){// 如果有选中
             // 发送选择的对象给子进程
             event.sender.send('selectedItem', files[0]);
-            return;
           }
       })
     });

@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "my-project2",
+    "productName": "自媒体视频工具",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"
@@ -91,7 +91,6 @@
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
-    "puppeteer": "^2.0.0",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
