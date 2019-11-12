@@ -4,7 +4,7 @@ import  MainListener from './main-process.js';
 
 
 // 主进程监听
-MainListener(electron);
+MainListener(electron,);
 
 // 监听是否需要打开选择文件夹
 // ipcMain.on('open-directory-dialog', function (event, p) {

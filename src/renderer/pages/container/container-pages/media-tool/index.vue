@@ -10,6 +10,11 @@
         <dt class="media-img"><img src="./toutiao.png" /></dt>
         <dd class="media-txt">今日头条小视频批量下载</dd>
     </dl>
+
+    <dl class="media-box" @click="goTopage('/container/douyin-svideo-author')">
+        <dt class="media-img"><img src="./douyin.jpg" /></dt>
+        <dd class="media-txt">抖音小视频批量下载</dd>
+    </dl>
     
   </section>
 </template>
