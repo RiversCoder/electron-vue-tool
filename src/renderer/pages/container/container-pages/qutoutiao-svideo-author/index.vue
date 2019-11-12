@@ -11,23 +11,23 @@
     <!-- 页码限制 -->
     <el-form label-position="left" label-width="80px" >
         <el-form-item label="页码范围" >
-            <el-input placeholder="开始页码 默认第1页" style="width:20%" v-model="page"></el-input> -- 
+            <el-input placeholder="开始页码 默认第1页" style="width:20%" v-model="startPage"></el-input> --
             <el-input placeholder="结束页码 默认第2页" style="width:20%" v-model="endPage"></el-input>
         </el-form-item>
     </el-form>
-    
+
     <el-button type="primary" @click="searchAuthor">搜索该作者所有短视频【页码范围段】</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
 
     <!-- 消息提示 -->
     <span class="line-box"></span>
-    
-    
+
+
 
     <!-- video 展示框 -->
     <el-card class="box-card">
     <div slot="header" class="clearfix">
-        <span>视频列表 当前第 {{ this.page }} 页 总页数 <b>{{ this.totalPage }}</b> 页</span>
+        <span>视频列表 当前第 {{ this.startPage + '-' + this.page }} 页 总页数 <b>{{ this.totalPage }}</b> 页</span>
         <el-button style="float: right; padding: 3px 0" type="text" @click="downloadAll">下载当前列表所有视频</el-button>
     </div>
     <div class="text item">
@@ -88,7 +88,7 @@
     // const fs = require('fs');
 
     // console.log(fs);
-    // 
+    //
 
     export default {
         name: 'toutiao-svideo-author',
@@ -99,6 +99,7 @@
                 searchApiAttr:{
                     token:'', dtu:'', version:0,os:'andriod',id: '',page:'',_:0
                 },
+                startPage: 1,
                 page: 1, // 翻页
                 endPage: 2,
                 totalPage: 0, // 总页数
@@ -110,7 +111,7 @@
                 fileStorepath: "/Users/a123/Downloads/", // 默认视频存放路径
                 currentDate: new Date(),
                 alertCount: 0
-            } 
+            }
         },
         created(){
             if(localStorage.getItem('videoFolderPath')){
@@ -132,7 +133,7 @@
             },
             // 点击作者全部小视频搜索
             searchAuthor(){
-                
+
                 if(!this.value){
                     this.$message({ message: '作者的主页链接不能为空', type: 'warning' });
                     return
@@ -141,17 +142,17 @@
                 this.offset = '';
                 this.videoList = [];
 
-                this.searchAuthorAllToutiaoVideos();
-
-            },
-            // 获取所有小视频
-            searchAuthorAllToutiaoVideos(){
-
                 // 校验
-                if(this.page >= this.endPage){
+                if(this.startPage >= this.endPage){
                     this.$message({message:'当前页不能大于等于后一页',type:'error'});
                     return
                 }
+
+                this.page = this.startPage;
+                this.searchAuthorAllToutiaoVideos();
+            },
+            // 获取所有小视频
+            searchAuthorAllToutiaoVideos(){
 
                 // 获取基本的接口方法
                 let apiUrl = 'http://api.1sapp.com/wemedia/content/videoList'
@@ -161,8 +162,8 @@
                 this.searchApiAttr = {
                     token:'', dtu:'200', version:0, os:'andriod', id: attr.id, page: this.page, _: (new Date()).getTime()
                 };
-                console.log(this.searchApiAttr)
-                
+                // console.log(this.searchApiAttr)
+
                 request({
                     method:'GET', url: apiUrl, qs: this.searchApiAttr
                 },(err,res,body) => {
@@ -172,15 +173,14 @@
 
                     response.list.forEach(v => {
                         this.videoList.push({
-                            name: v.title +'<'+v.tag.join(',')+'>',
+                            name: v.title.replace(/(<|>|\\|\/|:|\"|\*|\?)/g,'') +'('+v.tag.join('、')+')',
                             cover: v.cover[0],
                             url: v.video_info.hd.url,
                             size: v.video_info.hd.size,
                         })
                     });
-                    
+
                     if(this.endPage - this.page > 1 && this.endPage <= this.totalPage){
-                        console.log('asdasdsa')
                         let timer = setTimeout(v=> {
                             this.page++;
                             this.searchAuthorAllToutiaoVideos();
@@ -205,7 +205,7 @@
                 await mkdir(this.fileStorepath);
                 // 开始下载
                 await downliu(this.fileStorepath, videoObject, () => {
-                    this.$message({ message: '名称为<'+videoObject.name+'>的视频下载成功！', type: 'success' });
+                    this.$message({ message: '名称为《'+videoObject.name+'》的视频下载成功！', type: 'success' });
                 })
             },
             // 下载所有的视频
