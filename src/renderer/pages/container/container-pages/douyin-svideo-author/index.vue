@@ -101,7 +101,8 @@
                 fileStorepath: "/Users/a123/Downloads/", // 默认视频存放路径
                 currentDate: new Date(),
                 alertCount: 0,
-                headers: {//设置请求头
+                headers: { 
+                    //设置请求头
                     "authority": "www.iesdouyin.com",
                     "method": "GET",
                     "path": "/share/video/6756876388831087885/?region=CN&mid=6756863443912887044&u_code=195dd43dk&titleType=title&timestamp=1573287338&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476",
