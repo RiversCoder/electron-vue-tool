@@ -8,7 +8,7 @@
      <span class="line-box"></span>
     <el-input v-model="value" placeholder="请输入作者的主页分享链接"></el-input>
     <span class="line-box"></span>
-    <el-button type="primary" @click="searchAuthor">搜索该作者所有小视频</el-button>
+    <el-button type="primary" @click="getAuthorAllVideoList">搜索该作者所有小视频</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
 
     <!-- 消息提示 -->
@@ -70,10 +70,12 @@
 
 <script scoped>
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader } from  '@/common/scripts/common.js';
+    import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
-    const path = require('path');
-    const fs = require('fs');
+    // const requestSync = require('sync-request');
+    // const path = require('path');
+    // const fs = require('fs');
 
     // console.log(fs);
     // 
@@ -102,7 +104,7 @@
                 currentDate: new Date(),
                 alertCount: 0,
                 headers: { 
-                    //设置请求头
+                    // 设置请求头
                     "authority": "www.iesdouyin.com",
                     "method": "GET",
                     "path": "/share/video/6756876388831087885/?region=CN&mid=6756863443912887044&u_code=195dd43dk&titleType=title&timestamp=1573287338&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476",
@@ -127,9 +129,80 @@
             }
         },
         mounted(){
-            this.searchAuthorAllDouyinVideos();
+            // this.searchAuthorAllDouyinVideos();
+
+            // 点击获取当前作者所有视频列表
+            // this.getAuthorAllVideoList();
         },
         methods:{
+            // 点击获取当前作者所有视频列表
+            async getAuthorAllVideoList(){
+
+                // const realAuthorUrl = '';
+                // const pageContent = '';
+                // http://www.zxdmrg.com/archives/51727726.html
+
+                // 1. 获取重定向的 页面地址
+                let res = new Promise((resolve, reject) => {
+                    request({ url: this.value, method: "GET" }, (err, res, body) => {
+                        if(err){
+                            reject(err);
+                        }
+                        resolve({res, body});
+                    })
+                });
+                
+                // 开始链式请求
+                res.then(({res, body}) => {
+                    const realAuthorUrl = res.request.headers.referer;
+                    const pageContent = body;
+
+                    // 解析参数 以及 tac字符串 及 字段dytk 及 用户ID 及 请求头
+
+                    // 获取字段dykt
+                    let re = /dytk:\s*\'([^\'\"]+)\'/;
+                    let dytk = re.exec(pageContent)[1];
+                    
+                    // 获取tac字符串
+                    let re2 = /<script>\s*tac=\s*\'([^\']+)\'\s*<\/script>/;
+                    let tac = re2.exec(pageContent)[1];
+
+                    // 获取用户的ID
+                    let re3 = /uid:\s*\"([^\'\"]+)\"/;
+                    let uid = re3.exec(pageContent)[1];
+
+                    // 获取需要的参数
+                    let currentUrlAttr = urlFormat(realAuthorUrl);
+                    let requestAttr = { sec_uid: currentUrlAttr.sec_uid, count: 21, max_cursor: 0, aid: 1128, _signature: '', dytk: dytk };
+                    let needAttr = {uid: uid, tac: tac};
+
+                    return { requestAttr, needAttr, headers: res.headers }
+                }).then(({requestAttr, needAttr, headers}) => {
+                    // console.log(requestAttr, needAttr, headers)
+                    
+                    // 开始生成签证 _signature
+                    let _signature = getSignature.call(window, needAttr);
+                    requestAttr._signature = _signature;
+
+                    // 开始请求列表接口
+                    // https://www.iesdouyin.com/web/api/v2/aweme/post/
+                    let url = 'https://www.iesdouyin.com/web/api/v2/aweme/post/';
+                    console.log(headers)
+                    return new Promise((resolve, reject) => {
+                        request({ url, method: "GET", headers:{
+                            'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
+                        }, form: requestAttr, json: true }, (err, res, body) => {
+                        if(err){ reject(err); }
+                        resolve({res, body});
+                    })
+                    })
+                }).then(res => {
+                    console.log(res);
+                });
+
+                
+
+            },
             downloadTest(){
                 //下载测试
                 let video = {name:'xxx',cover:'',url:'https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200f3c0000bn2juil9688ssnjarf1g&line=0&ratio=540p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1'};
