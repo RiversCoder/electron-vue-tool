@@ -5,8 +5,12 @@
     <el-input v-model="fileStorepath" placeholder="请输入视频存放的地址" disabled></el-input>
     <span class="line-box"></span>
     <el-button type="info" @click="alertFolderSelect">选择视频存放路径</el-button>
-     <span class="line-box"></span>
-    <el-input v-model="value" placeholder="请输入作者的主页分享链接"></el-input>
+    <span class="line-box"></span>
+    <span class="line-box-label"><font style="color:red;">*</font> 请输入抖音作者的视频列表的URL: </span>
+    <el-input v-model="playListUrl" placeholder="请输入当前作者的视频列表URL （去浏览器输入该作者的抖音APP分享地址，需要安装浏览器插件）"></el-input>
+    <span class="line-box"></span>
+    <span class="line-box-label"><font style="color:red;">*</font> 请输入当前使用的设备及其型号: </span>
+    <el-input v-model="userAgent" placeholder="请输入当前使用的设备及其型号 （去浏览器复制）"></el-input>
     <span class="line-box"></span>
     <el-button type="primary" @click="searchAuthor">搜索该作者所有小视频</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
@@ -19,7 +23,7 @@
     <el-card class="box-card">
     <div slot="header" class="clearfix">
         <span>视频列表</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="downloadTest">下载当前列表所有视频</el-button>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="downloadAll">下载当前列表所有视频</el-button>
     </div>
     <div class="text item">
         <el-row :gutter="20" class="videoItem">
@@ -70,10 +74,14 @@
 
 <script scoped>
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader } from  '@/common/scripts/common.js';
+    import data from './data.json'
+    import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
-    const path = require('path');
-    const fs = require('fs');
+    
+    // const requestSync = require('sync-request');
+    // const path = require('path');
+    // const fs = require('fs');
 
     // console.log(fs);
     // 
@@ -82,27 +90,19 @@
         name: 'toutiao-svideo-author',
         data(){
             return {
-                value: 'https://v.douyin.com/QFjH2L/',
-                centerValue: 'http://www.iesdouyin.com/share/user/58884971755?u_code=195dd43dk&amp;sec_uid=MS4wLjABAAAAXoEoTxT87AdniErGMo6jr9B3NDELNQ6KiAB2gQ2z_aY&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy&amp;iid=55815484476',
-                apiValue: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=MS4wLjABAAAAXoEoTxT87AdniErGMo6jr9B3NDELNQ6KiAB2gQ2z_aY&count=21&max_cursor=0&aid=1128&_signature=Ta1yURAWEGyViRkjLpLeFU2tck&dytk=796047f4ddd86249f12c34917383d3f8',
-                searchApiAttr:{
-                    active_tab: "", app_name: "",
-                    category: "profile_short_video", device_id: "", 
-                    media_id: "", offset: "", // 第二次接口会带上
-                    request_source: "", stream_api_version: "82",
-                    user_id: "", version_code: "", version_name: "", visited_uid: "",
-                },
-                offset: '', // 翻页
+                playListUrl: '',
+                basePlayListUrl: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?',
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36',
+                hasMore: true, // 是否有下一页
+                max_cursor: 0, // 下一页的锚点 默认0
                 videoModal: { status: false, url: '' }, // 是否在线播放视频
-                videoUrl: '',
-                // allDownload:{ downloadCount: 0, status: false }, // 下载到第几个
                 videoList: [/*{ url: 'xxxx', name: '西瓜头条小视频', cover: 'https://element.eleme.cn/2.0/static/hamburger.50e4091.png' }*/],
                 videoArr:[],
                 fileStorepath: "/Users/a123/Downloads/", // 默认视频存放路径
                 currentDate: new Date(),
-                alertCount: 0,
+                mobileVideoPlayUrl:'https://www.iesdouyin.com/share/video/6757547224902667532/?region=CN&mid=6744002686875650820&u_code=195dd43dk&titleType=title&timestamp=1573723519&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476',
                 headers: { 
-                    //设置请求头
+                    // 设置请求头
                     "authority": "www.iesdouyin.com",
                     "method": "GET",
                     "path": "/share/video/6756876388831087885/?region=CN&mid=6756863443912887044&u_code=195dd43dk&titleType=title&timestamp=1573287338&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476",
@@ -117,7 +117,7 @@
                     "sec-fetch-site": "none",
                     "sec-fetch-user": "?1",
                     "upgrade-insecure-requests": "1",
-                    "user-agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+                    "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"
                 }
             } 
         },
@@ -127,13 +127,71 @@
             }
         },
         mounted(){
-            this.searchAuthorAllDouyinVideos();
+            // this.searchAuthorAllDouyinVideos();
+
+            // 点击获取当前作者所有视频列表
+            // this.getAuthorAllVideoList();
+            this.videoList = data.video_list;
         },
         methods:{
+            // 点击获取当前作者所有视频列表
+            async getAuthorAllVideoList(){
+
+                // const realAuthorUrl = '';
+                // const pageContent = '';
+                // http://www.zxdmrg.com/archives/51727726.html
+
+                // 基础 URL 
+                this.basePlayListUrl = 'https://www.iesdouyin.com/web/api/v2/aweme/post/?';
+
+                // 1. 获取重定向的 页面地址
+                let res = new Promise((resolve, reject) => {
+                    request({ url: this.playListUrl, method: "GET", json:true, headers: {'user-agent':this.userAgent} }, (err, res, body) => {
+                        if(err){
+                            reject(err);
+                        }
+                        resolve({res, body});
+                    })
+                });
+                
+                // 获取小视频数据
+                res.then(({res, body}) => {
+                    // console.log(body)
+                    if(body.aweme_list&&body.aweme_list.length == 0){
+                        this.$message({type:'error',message:'视频播放列表URL过期，请重新刷新谷歌浏览器获取！'})
+                        return;
+                    }
+
+                    body.aweme_list.forEach(v => {
+                        this.videoList.push({
+                            url: v.video.play_addr.url_list[0],
+                            name: v.desc.replace(/(<|>|\\|\/|:|\"|\*|\?)/g,''),
+                            cover: v.video.cover.url_list[0]
+                        });
+                    });
+
+                    // console.log(this.videoList.length);
+                    if(body.has_more){
+                        // 修改URL参数再次请求
+                        let attr = urlFormat(this.playListUrl);
+                        attr.max_cursor = body.max_cursor;
+                        
+                        for (let key in attr) {
+                            this.basePlayListUrl += key+'='+attr[key]+'&'
+                        }
+                        // 重新获取新的 url
+                        this.playListUrl = this.basePlayListUrl.slice(0,-1);
+                        setTimeout(() => {
+                            this.getAuthorAllVideoList();
+                        }, 1500);
+                    }
+                    console.log(JSON.stringify(this.videoList))
+                })
+            },
             downloadTest(){
                 //下载测试
                 let video = {name:'xxx',cover:'',url:'https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200f3c0000bn2juil9688ssnjarf1g&line=0&ratio=540p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1'};
-               
+
                 downliuWithHeader(this.fileStorepath, video, this.headers);
                 
             },
@@ -149,16 +207,16 @@
             // 点击作者全部小视频搜索
             searchAuthor(){
                 
-                if(!this.value){
-                    this.$message({ message: '作者的主页链接不能为空', type: 'warning' });
-                    return
-                }
+                // if(!this.value){
+                //     this.$message({ message: '作者的主页链接不能为空', type: 'warning' });
+                //     return
+                // }
 
-                this.offset = '';
+                // this.offset = '';
                 this.videoList = [];
 
-                this.searchAuthorAllToutiaoVideos();
-
+                this.getAuthorAllVideoList();
+                
             },
             // 获取该抖音所有小视频
             searchAuthorAllDouyinVideos(){
@@ -225,7 +283,7 @@
                 // 验证且创建目录
                 await mkdir(this.fileStorepath);
                 // 开始下载
-                await downliu(this.fileStorepath, videoObject, () => {
+                await downliuWithHeader(this.fileStorepath, videoObject, this.headers, () => {
                     this.$message({ message: '名称为<'+videoObject.name+'>的视频下载成功！', type: 'success' });
                 })
             },
@@ -246,6 +304,7 @@
 <style lang="css" scoped>
     .toutiao-svideo{ width:80%; margin:0 auto;margin-top:30px; }
     .line-box{ width:100%;height:20px;display:block; }
+    .line-box-label{height:50px;line-height: 50px;font-size:14px;}
     .video-box{width:100%;height:auto;margin-top: 20px;}
     .videoItem .grid-content{height:60px;overflow: hidden;margin-top:2px;}
 </style>

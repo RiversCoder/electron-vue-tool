@@ -85,6 +85,7 @@
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader } from  '@/common/scripts/common.js';
     import { ipcRenderer } from 'electron';
     const request = require('request');
+    // const requestSync = require('sync-request');
     // const fs = require('fs');
 
     // console.log(fs);

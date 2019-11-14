@@ -1,14 +1,14 @@
 <template>
   <section class="toutiao-svideo">
     <!-- 框架布局 -->
-    <h3>批量下载头条小视频（无水印）</h3><br />
+    <h3>批量下载抖音小视频（无水印）</h3><br />
     <el-input v-model="fileStorepath" placeholder="请输入视频存放的地址" disabled></el-input>
     <span class="line-box"></span>
     <el-button type="info" @click="alertFolderSelect">选择视频存放路径</el-button>
      <span class="line-box"></span>
     <el-input v-model="value" placeholder="请输入作者的主页分享链接"></el-input>
     <span class="line-box"></span>
-    <el-button type="primary" @click="searchAuthor">搜索该作者所有小视频</el-button>
+    <el-button type="primary" @click="getAuthorAllVideoList">搜索该作者所有小视频</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
 
     <!-- 消息提示 -->
@@ -19,7 +19,7 @@
     <el-card class="box-card">
     <div slot="header" class="clearfix">
         <span>视频列表</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="downloadAll">下载当前列表所有视频</el-button>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="downloadTest">下载当前列表所有视频</el-button>
     </div>
     <div class="text item">
         <el-row :gutter="20" class="videoItem">
@@ -42,10 +42,6 @@
         </el-row>
     </div>
     </el-card>
-
-    <div class="fixedToHome" @click="$router.push('/container')" style="cursor:pointer;position:fixed;bottom:30px;right:10px;background-color:#409EFF;color:#fff;z-index:999;width:50px;height:50px;text-align:center;line-height:50px;font-size:15px;">
-        主页
-    </div>
 
     <!-- <el-dialog title="视频播放" :visible.sync="videoModal.status" width="30%" center>
         <video :src="videoModal.url" autoplay width="300" controls></video>
@@ -74,8 +70,11 @@
 
 <script scoped>
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader } from  '@/common/scripts/common.js';
+    import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
+    // const requestSync = require('sync-request');
+    // const path = require('path');
     // const fs = require('fs');
 
     // console.log(fs);
@@ -85,8 +84,9 @@
         name: 'toutiao-svideo-author',
         data(){
             return {
-                value: 'https://i.snssdk.com/rogue/ugc/profile/?version_code=6.9.8&version_name=60908&user_id=52654717138&media_id=52655017991&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article',
-                apiValue: 'https://i.snssdk.com/api/feed/profile/v1/?category=profile_short_video&visited_uid=109127257045&stream_api_version=82&offset=1567519982089&version_code=6.9.8&version_name=60908&user_id=109127257045&media_id=0&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article',
+                value: 'https://v.douyin.com/QFjH2L/',
+                centerValue: 'http://www.iesdouyin.com/share/user/58884971755?u_code=195dd43dk&amp;sec_uid=MS4wLjABAAAAXoEoTxT87AdniErGMo6jr9B3NDELNQ6KiAB2gQ2z_aY&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy&amp;iid=55815484476',
+                apiValue: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=MS4wLjABAAAAXoEoTxT87AdniErGMo6jr9B3NDELNQ6KiAB2gQ2z_aY&count=21&max_cursor=0&aid=1128&_signature=Ta1yURAWEGyViRkjLpLeFU2tck&dytk=796047f4ddd86249f12c34917383d3f8',
                 searchApiAttr:{
                     active_tab: "", app_name: "",
                     category: "profile_short_video", device_id: "", 
@@ -102,7 +102,25 @@
                 videoArr:[],
                 fileStorepath: "/Users/a123/Downloads/", // 默认视频存放路径
                 currentDate: new Date(),
-                alertCount: 0
+                alertCount: 0,
+                headers: { 
+                    // 设置请求头
+                    "authority": "www.iesdouyin.com",
+                    "method": "GET",
+                    "path": "/share/video/6756876388831087885/?region=CN&mid=6756863443912887044&u_code=195dd43dk&titleType=title&timestamp=1573287338&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476",
+                    "scheme": "https",
+                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                    "accept-encoding": "gzip, deflate, br",
+                    "accept-language": "zh-CN,zh;q=0.9",
+                    "cache-control": "max-age=0",
+                    "cookie":"_ga=GA1.2.451683853.1573285182; _gid=GA1.2.685326156.1573285182; tt_webid=6757217750135866894; _ba=BA0.2-20191109-5199e-xo2daQ5rXPzPOxU6mYRm",
+                    "referer": "https://www.iesdouyin.com/share/user/58884971755?u_code=195dd43dk&sec_uid=MS4wLjABAAAAXoEoTxT87AdniErGMo6jr9B3NDELNQ6KiAB2gQ2z_aY&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy&iid=55815484476",
+                    "sec-fetch-mode": "navigate",
+                    "sec-fetch-site": "none",
+                    "sec-fetch-user": "?1",
+                    "upgrade-insecure-requests": "1",
+                    "user-agent": "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+                }
             } 
         },
         created(){
@@ -111,9 +129,86 @@
             }
         },
         mounted(){
-            // this.searchAuthorAllToutiaoVideos();
+            // this.searchAuthorAllDouyinVideos();
+
+            // 点击获取当前作者所有视频列表
+            // this.getAuthorAllVideoList();
         },
         methods:{
+            // 点击获取当前作者所有视频列表
+            async getAuthorAllVideoList(){
+
+                // const realAuthorUrl = '';
+                // const pageContent = '';
+                // http://www.zxdmrg.com/archives/51727726.html
+
+                // 1. 获取重定向的 页面地址
+                let res = new Promise((resolve, reject) => {
+                    request({ url: this.value, method: "GET" }, (err, res, body) => {
+                        if(err){
+                            reject(err);
+                        }
+                        resolve({res, body});
+                    })
+                });
+                
+                // 开始链式请求
+                res.then(({res, body}) => {
+                    const realAuthorUrl = res.request.headers.referer;
+                    const pageContent = body;
+
+                    // 解析参数 以及 tac字符串 及 字段dytk 及 用户ID 及 请求头
+
+                    
+                    
+                    // 获取tac字符串
+                    let re2 = /<script>\s*tac=\s*\'([^\']+)\'\s*<\/script>/;
+                    let tac = re2.exec(pageContent)[1];
+
+                    // 获取字段dykt
+                    let re = /dytk:\s*\'([^\'\"]+)\'/;
+                    let dytk = re.exec(pageContent)[1];
+
+                    // 获取用户的ID
+                    let re3 = /uid:\s*\"([^\'\"]+)\"/;
+                    let uid = re3.exec(pageContent)[1];
+
+                    // 获取需要的参数
+                    let currentUrlAttr = urlFormat(realAuthorUrl);
+                    let requestAttr = { sec_uid: currentUrlAttr.sec_uid, count: 21, max_cursor: 0, aid: 1128, _signature: '', dytk: dytk };
+                    let needAttr = {uid: uid, tac: tac};
+
+                    return { requestAttr, needAttr, headers: res.headers }
+                }).then(({requestAttr, needAttr, headers}) => {
+                    // console.log(requestAttr, needAttr, headers)
+                    
+                    // 开始生成签证 _signature
+                    let _signature = getSignature.call(window, needAttr);
+                    requestAttr._signature = _signature;
+
+                    // 开始请求列表接口
+                    // https://www.iesdouyin.com/web/api/v2/aweme/post/
+                    let url = 'https://www.iesdouyin.com/web/api/v2/aweme/post/';
+                    console.log(headers)
+                    return new Promise((resolve, reject) => {
+                        request({ url, method: "GET", headers:{
+                            'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
+                        }, form: requestAttr, json: true }, (err, res, body) => {
+                        if(err){ reject(err); }
+                        resolve({res, body});
+                    })
+                    })
+                }).then(res => {
+                    console.log(res);
+                });
+            },
+            downloadTest(){
+                //下载测试
+                let video = {name:'xxx',cover:'',url:'https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200f3c0000bn2juil9688ssnjarf1g&line=0&ratio=540p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1'};
+               
+                downliuWithHeader(this.fileStorepath, video, this.headers);
+                
+            },
             // 打开且选择文件夹
             alertFolderSelect(){
                 ipcRenderer.send('open-directory-dialog','openDirectory'); // 打开且选择文件夹
@@ -137,8 +232,8 @@
                 this.searchAuthorAllToutiaoVideos();
 
             },
-            // 获取所有小视频
-            searchAuthorAllToutiaoVideos(){
+            // 获取该抖音所有小视频
+            searchAuthorAllDouyinVideos(){
                // 获取基本的接口方法
                let apiUrl = 'https://i.snssdk.com/api/feed/profile/v1/'
                // 解析URL成 需要的视频资源定位
@@ -175,7 +270,7 @@
                        this.videoList.push({
                            url: videoInfo.video.play_addr.url_list[0],
                            cover: videoInfo.video.origin_cover.url_list[0],
-                           name: videoInfo.title.replace(/(<|>|\\|\/|:|\"|\*|\?)/g,'')
+                           name: videoInfo.title
                        })
                     });
 
