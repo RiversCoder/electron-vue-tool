@@ -2,9 +2,12 @@
   <section class="toutiao-svideo">
     <!-- 框架布局 -->
     <h3>批量下载抖音小视频（无水印）</h3><br />
-    <el-input v-model="fileStorepath" placeholder="请输入视频存放的地址" disabled></el-input>
+    <el-input v-model="fileStorepath" placeholder="请输入视频(插件)存放的地址" disabled></el-input>
     <span class="line-box"></span>
-    <el-button type="info" @click="alertFolderSelect">选择视频存放路径</el-button>
+    <el-button type="info" @click="alertFolderSelect">选择视频及插件存放路径</el-button>
+    <span class="line-box"></span>
+    <span class="line-box-label"><font style="color:red;">*</font> 如果谷歌浏览器未安装插件，请下载插件安装至浏览器： </span>
+    <el-button type="primary" @click="downloadPlugin" icon="el-icon-download" circle></el-button>
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 请输入抖音作者的视频列表的URL: </span>
     <el-input v-model="playListUrl" placeholder="请输入当前作者的视频列表URL （去浏览器输入该作者的抖音APP分享地址，需要安装浏览器插件）"></el-input>
@@ -47,44 +50,16 @@
     </div>
     </el-card>
 
-    <!-- <el-dialog title="视频播放" :visible.sync="videoModal.status" width="30%" center>
-        <video :src="videoModal.url" autoplay width="300" controls></video>
-    </el-dialog> -->
-
-    <!-- <div class="video-box" >
-        <el-row>
-            <el-col :span="8" v-for="(o, index) in videoArr" :key="o" :offset="index > 0 ? 2 : 0">
-                <el-card :body-style="{ padding: '0px' }">
-                <img :src="o.cover" class="image" width="100%">
-                <div style="padding: 14px;">
-                    <span>{{o.title}}</span>
-                    <div class="bottom clearfix">
-                    <time class="time">{{ currentDate.format("yyyy-MM-dd hh:mm:ss") }}</time>
-                    <el-button type="text" class="button" @click="downloadOneSToutiaoVideo">下载视频</el-button>
-                    </div>
-                </div>
-                </el-card>
-            </el-col>
-        </el-row>
-    </div>  -->
-
   </section>
 </template>
 
 
 <script scoped>
-    import { urlFormat, mkdir, downliu, sleep, downliuWithHeader } from  '@/common/scripts/common.js';
+    import { urlFormat, mkdir, downliu, sleep, downliuWithHeader, downFile } from  '@/common/scripts/common.js';
     import data from './data.json'
     import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
-    
-    // const requestSync = require('sync-request');
-    // const path = require('path');
-    // const fs = require('fs');
-
-    // console.log(fs);
-    // 
 
     export default {
         name: 'toutiao-svideo-author',
@@ -93,6 +68,7 @@
                 playListUrl: '',
                 basePlayListUrl: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?',
                 userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36',
+                chromePluginDownloadUrl: 'http://riversfrog.gitee.io/network_source/douyin_spider.zip',
                 hasMore: true, // 是否有下一页
                 max_cursor: 0, // 下一页的锚点 默认0
                 videoModal: { status: false, url: '' }, // 是否在线播放视频
@@ -131,7 +107,7 @@
 
             // 点击获取当前作者所有视频列表
             // this.getAuthorAllVideoList();
-            this.videoList = data.video_list;
+            // this.videoList = data.video_list;
         },
         methods:{
             // 点击获取当前作者所有视频列表
@@ -188,12 +164,11 @@
                     console.log(JSON.stringify(this.videoList))
                 })
             },
-            downloadTest(){
-                //下载测试
-                let video = {name:'xxx',cover:'',url:'https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200f3c0000bn2juil9688ssnjarf1g&line=0&ratio=540p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1'};
-
-                downliuWithHeader(this.fileStorepath, video, this.headers);
-                
+            // 下载插件至本地
+            downloadPlugin(){
+                downFile(this.fileStorepath, this.chromePluginDownloadUrl, '.zip', '抖音谷歌浏览器插件', () => {
+                    this.$message({ message: '插件下载成功！', type: 'success' });
+                })
             },
             // 打开且选择文件夹
             alertFolderSelect(){

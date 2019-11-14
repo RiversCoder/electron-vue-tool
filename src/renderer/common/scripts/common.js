@@ -59,6 +59,22 @@ export async function sleep(duration) {
 };
 
 
+// 下载其他文件 参数 文件路径， 下载地址，文件后缀，文件名称，回调方法
+export async function downFile(FolderPath, url, suffix, name, callback) {
+
+    //获取 filename
+    var fileName = name ? name : ''+ Math.floor((Math.random()*100000));
+    //去掉/
+    var toPath = path.join(FolderPath, fileName);
+
+    // console.log('开始下载视频：%s，保存到：%s', fileName, FolderPath);
+    request(encodeURI(url)).on('error', function(err) {
+        console.log(err)
+    }).pipe(fs.createWriteStream(toPath+suffix)).on('finish',()=>{
+        callback&&callback();
+    })
+}
+
 // 下载视频
 export async function downliu(FolderPath, videoObject, callback) {
     // console.log('发现%d张图片，准备开始下载...', links.length);
