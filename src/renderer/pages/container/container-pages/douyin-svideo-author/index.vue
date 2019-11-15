@@ -74,8 +74,6 @@
 
 <script scoped>
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader, downFile } from  '@/common/scripts/common.js';
-    import data from './data.json'
-    import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
 
@@ -122,11 +120,6 @@
             }
         },
         mounted(){
-            // this.searchAuthorAllDouyinVideos();
-
-            // 点击获取当前作者所有视频列表
-            // this.getAuthorAllVideoList();
-            // this.videoList = data.video_list;
         },
         methods:{
             // 点击获取当前作者所有视频列表
@@ -206,76 +199,9 @@
             // 点击作者全部小视频搜索
             searchAuthor(){
                 
-                // if(!this.value){
-                //     this.$message({ message: '作者的主页链接不能为空', type: 'warning' });
-                //     return
-                // }
-
-                // this.offset = '';
                 this.videoList = [];
-
                 this.getAuthorAllVideoList();
                 
-            },
-            // 获取该抖音所有小视频
-            searchAuthorAllDouyinVideos(){
-               // 获取基本的接口方法
-               let apiUrl = 'https://i.snssdk.com/api/feed/profile/v1/'
-               // 解析URL成 需要的视频资源定位
-               let attr = urlFormat(this.value);
-               // 拼接参数
-               this.searchApiAttr = {
-                    active_tab: attr.active_tab,
-                    app_name: attr.app_name,
-                    category: "profile_short_video",
-                    device_id: attr.device_id,
-                    media_id: attr.media_id,
-                    offset: this.offset, // 第二次接口会带上
-                    request_source: attr.request_source,
-                    stream_api_version: "82",
-                    user_id: attr.user_id,
-                    version_code: attr.version_code,
-                    version_name: attr.version_name,
-                    visited_uid: attr.user_id,
-                };
-                // console.log(this.searchApiAttr)
-                
-                request({
-                    method:'GET', url: apiUrl, qs: this.searchApiAttr
-                },(err,res,body) => {
-                    let response = JSON.parse(body);
-                    // 获取视频偏移量 翻页
-                    this.offset = response.offset;
-
-                    // 获取视频列表
-                    let videoInfos = {url:'',cover:'',name:''};
-                    let videoInfo = '';
-                    response.data.forEach(v => {
-                       videoInfo = JSON.parse(v.content).raw_data;
-                       this.videoList.push({
-                           url: videoInfo.video.play_addr.url_list[0],
-                           cover: videoInfo.video.origin_cover.url_list[0],
-                           name: videoInfo.title
-                       })
-                    });
-
-                    if(response.has_more){
-                        let timer = setTimeout(v=> {
-                            this.searchAuthorAllToutiaoVideos();
-                            clearTimeout(timer);
-                        }, 1500+Math.ceil(Math.random()*500) );
-                    }
-
-                })
-                // this.axios.get(apiUrl,{params:this.searchApiAttr}).then(res => {
-                //     console.log(res);
-                // })
-            },
-            // 在线播放该小视频
-            playVideoByUrl(videoObject){
-                console.log(videoObject)
-                this.videoModal.status = true;
-                this.videoModal.url = videoObject.url;
             },
             // 根据小视频的url 下载该小视频
             async donwloadVideoByUrl(videoObject){
