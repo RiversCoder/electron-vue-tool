@@ -5,15 +5,23 @@
     <el-input v-model="fileStorepath" placeholder="请输入视频(插件)存放的地址" disabled></el-input>
     <span class="line-box"></span>
     <el-button type="info" @click="alertFolderSelect">选择视频及插件存放路径</el-button>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 如果谷歌浏览器未安装插件，请下载插件安装至浏览器： </span>
     <el-button type="primary" @click="downloadPlugin" icon="el-icon-download" circle></el-button>
+
+    <span class="line-box"></span>
+    <span class="line-box-label"><font style="color:red;">*</font> 插件安装使用视频教程，在线播放 （全屏播放效果更好）： </span>
+    <el-button type="primary" @click="playTutorialVideo" icon="el-icon-caret-right" circle></el-button>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 请输入抖音作者的视频列表的URL: </span>
     <el-input v-model="playListUrl" placeholder="请输入当前作者的视频列表URL （去浏览器输入该作者的抖音APP分享地址，需要安装浏览器插件）"></el-input>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 请输入当前使用的设备及其型号: </span>
     <el-input v-model="userAgent" placeholder="请输入当前使用的设备及其型号 （去浏览器复制）"></el-input>
+    
     <span class="line-box"></span>
     <el-button type="primary" @click="searchAuthor">搜索该作者所有小视频</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
@@ -50,6 +58,16 @@
     </div>
     </el-card>
 
+    <!--视频播放-->
+    <el-dialog title="在线视频播放" :visible.sync="videoModal.status" width="80%" center>
+        <video :src="videoModal.url" autoplay width="90%" controls style="position:relative;left:5%;"></video>
+    </el-dialog>
+
+    <!--回到主页-->
+    <div class="fixedToHome" @click="$router.push('/container')" style="cursor:pointer;position:fixed;bottom:30px;right:10px;background-color:#409EFF;color:#fff;z-index:999;width:50px;height:50px;text-align:center;line-height:50px;font-size:15px;">
+        主页
+    </div>
+
   </section>
 </template>
 
@@ -69,6 +87,7 @@
                 basePlayListUrl: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?',
                 userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36',
                 chromePluginDownloadUrl: 'http://riversfrog.gitee.io/network_source/douyin_spider.zip',
+                chromePlufinVideoTutorialUrl: 'http://riversfrog.gitee.io/network_source/douyin_spider_teach.mp4',
                 hasMore: true, // 是否有下一页
                 max_cursor: 0, // 下一页的锚点 默认0
                 videoModal: { status: false, url: '' }, // 是否在线播放视频
@@ -169,6 +188,11 @@
                 downFile(this.fileStorepath, this.chromePluginDownloadUrl, '.zip', '抖音谷歌浏览器插件', () => {
                     this.$message({ message: '插件下载成功！', type: 'success' });
                 })
+            },
+            // 播放插件安装使用视频教程
+            playTutorialVideo(){
+                this.videoModal.status = true;
+                this.videoModal.url = this.chromePlufinVideoTutorialUrl;
             },
             // 打开且选择文件夹
             alertFolderSelect(){
