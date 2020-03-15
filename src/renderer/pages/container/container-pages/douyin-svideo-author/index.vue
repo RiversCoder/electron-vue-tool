@@ -5,15 +5,23 @@
     <el-input v-model="fileStorepath" placeholder="请输入视频(插件)存放的地址" disabled></el-input>
     <span class="line-box"></span>
     <el-button type="info" @click="alertFolderSelect">选择视频及插件存放路径</el-button>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 如果谷歌浏览器未安装插件，请下载插件安装至浏览器： </span>
     <el-button type="primary" @click="downloadPlugin" icon="el-icon-download" circle></el-button>
+
+    <span class="line-box"></span>
+    <span class="line-box-label"><font style="color:red;">*</font> 插件安装使用视频教程，在线播放 （全屏播放效果更好）： </span>
+    <el-button type="primary" @click="playTutorialVideo" icon="el-icon-caret-right" circle></el-button>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 请输入抖音作者的视频列表的URL: </span>
     <el-input v-model="playListUrl" placeholder="请输入当前作者的视频列表URL （去浏览器输入该作者的抖音APP分享地址，需要安装浏览器插件）"></el-input>
+
     <span class="line-box"></span>
     <span class="line-box-label"><font style="color:red;">*</font> 请输入当前使用的设备及其型号: </span>
     <el-input v-model="userAgent" placeholder="请输入当前使用的设备及其型号 （去浏览器复制）"></el-input>
+    
     <span class="line-box"></span>
     <el-button type="primary" @click="searchAuthor">搜索该作者所有小视频</el-button>
     <!-- <el-button type="primary" @click="downloadOneSToutiaoVideo" >下载小视频</el-button> -->
@@ -50,14 +58,22 @@
     </div>
     </el-card>
 
+    <!--视频播放-->
+    <el-dialog title="在线视频播放" :visible.sync="videoModal.status" width="80%" center>
+        <video :src="videoModal.url" autoplay width="90%" controls style="position:relative;left:5%;"></video>
+    </el-dialog>
+
+    <!--回到主页-->
+    <div class="fixedToHome" @click="$router.push('/container')" style="cursor:pointer;position:fixed;bottom:30px;right:10px;background-color:#409EFF;color:#fff;z-index:999;width:50px;height:50px;text-align:center;line-height:50px;font-size:15px;">
+        主页
+    </div>
+
   </section>
 </template>
 
 
 <script scoped>
     import { urlFormat, mkdir, downliu, sleep, downliuWithHeader, downFile } from  '@/common/scripts/common.js';
-    import data from './data.json'
-    import { getSignature } from './douyin-tool.js'
     import { ipcRenderer } from 'electron';
     const request = require('request');
 
@@ -69,6 +85,7 @@
                 basePlayListUrl: 'https://www.iesdouyin.com/web/api/v2/aweme/post/?',
                 userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36',
                 chromePluginDownloadUrl: 'http://riversfrog.gitee.io/network_source/douyin_spider.zip',
+                chromePlufinVideoTutorialUrl: 'http://riversfrog.gitee.io/network_source/douyin_spider_teach.mp4',
                 hasMore: true, // 是否有下一页
                 max_cursor: 0, // 下一页的锚点 默认0
                 videoModal: { status: false, url: '' }, // 是否在线播放视频
@@ -103,11 +120,6 @@
             }
         },
         mounted(){
-            // this.searchAuthorAllDouyinVideos();
-
-            // 点击获取当前作者所有视频列表
-            // this.getAuthorAllVideoList();
-            // this.videoList = data.video_list;
         },
         methods:{
             // 点击获取当前作者所有视频列表
@@ -170,6 +182,11 @@
                     this.$message({ message: '插件下载成功！', type: 'success' });
                 })
             },
+            // 播放插件安装使用视频教程
+            playTutorialVideo(){
+                this.videoModal.status = true;
+                this.videoModal.url = this.chromePlufinVideoTutorialUrl;
+            },
             // 打开且选择文件夹
             alertFolderSelect(){
                 ipcRenderer.send('open-directory-dialog','openDirectory'); // 打开且选择文件夹
@@ -182,76 +199,9 @@
             // 点击作者全部小视频搜索
             searchAuthor(){
                 
-                // if(!this.value){
-                //     this.$message({ message: '作者的主页链接不能为空', type: 'warning' });
-                //     return
-                // }
-
-                // this.offset = '';
                 this.videoList = [];
-
                 this.getAuthorAllVideoList();
                 
-            },
-            // 获取该抖音所有小视频
-            searchAuthorAllDouyinVideos(){
-               // 获取基本的接口方法
-               let apiUrl = 'https://i.snssdk.com/api/feed/profile/v1/'
-               // 解析URL成 需要的视频资源定位
-               let attr = urlFormat(this.value);
-               // 拼接参数
-               this.searchApiAttr = {
-                    active_tab: attr.active_tab,
-                    app_name: attr.app_name,
-                    category: "profile_short_video",
-                    device_id: attr.device_id,
-                    media_id: attr.media_id,
-                    offset: this.offset, // 第二次接口会带上
-                    request_source: attr.request_source,
-                    stream_api_version: "82",
-                    user_id: attr.user_id,
-                    version_code: attr.version_code,
-                    version_name: attr.version_name,
-                    visited_uid: attr.user_id,
-                };
-                // console.log(this.searchApiAttr)
-                
-                request({
-                    method:'GET', url: apiUrl, qs: this.searchApiAttr
-                },(err,res,body) => {
-                    let response = JSON.parse(body);
-                    // 获取视频偏移量 翻页
-                    this.offset = response.offset;
-
-                    // 获取视频列表
-                    let videoInfos = {url:'',cover:'',name:''};
-                    let videoInfo = '';
-                    response.data.forEach(v => {
-                       videoInfo = JSON.parse(v.content).raw_data;
-                       this.videoList.push({
-                           url: videoInfo.video.play_addr.url_list[0],
-                           cover: videoInfo.video.origin_cover.url_list[0],
-                           name: videoInfo.title
-                       })
-                    });
-
-                    if(response.has_more){
-                        let timer = setTimeout(v=> {
-                            this.searchAuthorAllToutiaoVideos();
-                            clearTimeout(timer);
-                        }, 1500+Math.ceil(Math.random()*500) );
-                    }
-
-                })
-                // this.axios.get(apiUrl,{params:this.searchApiAttr}).then(res => {
-                //     console.log(res);
-                // })
-            },
-            // 在线播放该小视频
-            playVideoByUrl(videoObject){
-                console.log(videoObject)
-                this.videoModal.status = true;
-                this.videoModal.url = videoObject.url;
             },
             // 根据小视频的url 下载该小视频
             async donwloadVideoByUrl(videoObject){
