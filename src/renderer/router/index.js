@@ -35,6 +35,10 @@ export default new Router({
         path:'/container/qutoutiao-svideo-author',
         name: 'qutoutiao-svideo-author',
         component: () => import('@/pages/container/container-pages/qutoutiao-svideo-author/index.vue')
+      },{
+        path:'/container/taobao-tool',
+        name: 'taobao-tool',
+        component: () => import('@/pages/container/container-pages/taobao-tool/index.vue')
       }]
     },
     {

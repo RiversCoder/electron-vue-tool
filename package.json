@@ -1,5 +1,5 @@
 {
-  "name": "my-project2",
+  "name": "media-tool",
   "version": "0.0.1",
   "author": "maozeyu <5400230+maozeyu@user.noreply.gitee.com>",
   "description": "An electron-vue project",
@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "自媒体视频工具",
+    "productName": "自媒体淘宝自动工具",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"

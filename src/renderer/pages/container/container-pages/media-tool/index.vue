@@ -2,18 +2,28 @@
   <section class="media-tool">
 
       <dl class="media-box" @click="goTopage('/container/qutoutiao-svideo-author')">
-        <dt class="media-img"><img src="./qutoutiao.png" /></dt>
+        <dt class="media-img"><img src="/static/images/app/qutoutiao.png" /></dt>
         <dd class="media-txt">趣头条短视频批量下载</dd>
     </dl>
 
     <dl class="media-box" @click="goTopage('/container/toutiao-svideo-author')">
-        <dt class="media-img"><img src="./toutiao.png" /></dt>
+        <dt class="media-img"><img src="/static/images/app/toutiao.png" /></dt>
         <dd class="media-txt">今日头条小视频批量下载</dd>
     </dl>
 
     <dl class="media-box" @click="goTopage('/container/douyin-svideo-author')">
-        <dt class="media-img"><img src="./douyin.jpg" /></dt>
+        <dt class="media-img"><img src="/static/images/app/douyin.jpg" /></dt>
         <dd class="media-txt">抖音小视频批量下载</dd>
+    </dl>
+
+    <dl class="media-box" @click="goTopage('/container/taobao-tool')">
+        <dt class="media-img"><img src="/static/images/app/taobao.jpg" /></dt>
+        <dd class="media-txt">淘宝商品内容生成工具</dd>
+    </dl>
+
+    <dl class="media-box" @click="goTopage('/container/ins-page')">
+        <dt class="media-img"><img src="/static/images/app/ins.jpg" /></dt>
+        <dd class="media-txt">Instagram下载工具</dd>
     </dl>
     
   </section>
